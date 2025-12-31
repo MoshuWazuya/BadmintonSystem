@@ -1,6 +1,11 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Livewire\Admin\Dashboard;
+use App\Livewire\Admin\ManageBookings;
+use App\Livewire\User\BookingForm;
+use App\Livewire\User\BookingHistory;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -26,3 +31,12 @@ Route::middleware([
         return view('dashboard');
     })->name('dashboard');
 });
+
+Route::middleware(['auth:sanctum', 'verified'])->group(function () {
+    // User Routes
+    Route::get('/book-court', BookingForm::class)->name('user.book');
+    Route::get('/my-bookings', BookingHistory::class)->name('user.bookings');
+});
+
+
+
