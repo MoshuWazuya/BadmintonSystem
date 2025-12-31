@@ -34,8 +34,8 @@ Route::middleware([
 
 Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     // User Routes
-    Route::get('/book-court', BookingForm::class)->name('user.book');
-    Route::get('/my-bookings', BookingHistory::class)->name('user.bookings');
+    Route::get('/bookcourt', BookingForm::class)->name('user.book');
+    Route::get('/mybookings', BookingHistory::class)->name('user.bookings');
 });
 
 

@@ -22,6 +22,6 @@ class Court extends Model
     // Relationship: A court has many bookings
     public function bookings()
     {
-        return $this->hasMany(Booking::class, 'court_id');
+        return $this->hasMany(Booking::class, 'court_id', 'court_id');
     }
 }
