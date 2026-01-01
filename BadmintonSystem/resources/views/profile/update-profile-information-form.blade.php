@@ -81,6 +81,13 @@
                 @endif
             @endif
         </div>
+        <!-- Phone Number -->
+         <div class="mt-4">
+                <x-label for="phone_number" value="Phone Number" />
+                <x-input id="phone_number" type="text"
+                    class="mt-1 block w-full"
+                    wire:model.defer="state.phone_number" />
+            </div>
     </x-slot>
 
     <x-slot name="actions">

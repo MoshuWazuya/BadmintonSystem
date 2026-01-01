@@ -1,27 +1,22 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Livewire\Admin\Dashboard;
-use App\Livewire\Admin\ManageBookings;
-use App\Livewire\User\BookingForm;
-use App\Livewire\User\BookingHistory;
 
+// Admin Livewire components
+use App\Http\Livewire\Admin\Dashboard;
+use App\Http\Livewire\Admin\ManageBookings;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-*/
+// User Livewire components
+use App\Http\Livewire\User\BookingForm;
+use App\Http\Livewire\User\BookingHistory;
+use App\Http\Livewire\User\UserProfile;
 
+// Home route
 Route::get('/', function () {
     return view('welcome');
 });
 
+// Default Jetstream dashboard
 Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
@@ -32,11 +27,15 @@ Route::middleware([
     })->name('dashboard');
 });
 
+// User Routes
 Route::middleware(['auth:sanctum', 'verified'])->group(function () {
-    // User Routes
     Route::get('/bookcourt', BookingForm::class)->name('user.book');
     Route::get('/mybookings', BookingHistory::class)->name('user.bookings');
+    Route::get('/profile', UserProfile::class)->name('user.profile');
 });
 
-
-
+// Admin Routes
+Route::middleware(['auth:sanctum', 'verified', 'isAdmin'])->group(function () {
+    Route::get('/admin/dashboard', Dashboard::class)->name('admin.dashboard');
+    Route::get('/admin/bookings', ManageBookings::class)->name('admin.bookings');
+});

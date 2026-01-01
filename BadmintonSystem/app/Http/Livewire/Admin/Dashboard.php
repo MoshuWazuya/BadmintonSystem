@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Livewire\Admin;
+namespace App\Http\Livewire\Admin;
 
 use Livewire\Component;
+use App\Models\User;
 use App\Models\Booking;
 use Illuminate\Support\Facades\DB;
 
 class Dashboard extends Component
 {
-
     public $totalBookings;
     public $pendingApprovals;
     public $popularCourts;
@@ -16,20 +16,16 @@ class Dashboard extends Component
 
     public function mount()
     {
-        // General Counters
         $this->totalBookings = Booking::count();
         $this->pendingApprovals = Booking::where('status', 'pending')->count();
 
-        // 1. Most Frequently Booked Courts
-        $this->popularCourts = Booking::select('court_id', DB::raw('count(*) as total'))
+        $this->popularCourts = Booking::with('court')
+            ->select('court_id', DB::raw('count(*) as total'))
             ->groupBy('court_id')
             ->orderByDesc('total')
-            ->with('court')
             ->take(5)
             ->get();
 
-        // 2. Peak Booking Hours
-        // Extracts the hour from start_time to find busiest slots
         $this->peakHours = Booking::select(DB::raw('HOUR(start_time) as hour'), DB::raw('count(*) as count'))
             ->groupBy('hour')
             ->orderByDesc('count')
@@ -39,7 +35,13 @@ class Dashboard extends Component
 
     public function render()
     {
-        return view('livewire.admin.dashboard')
-            ->layout('layouts.app');
+        return view('livewire.admin.dashboard', [
+            'totalUsers' => User::count(),
+            'totalBookings' => $this->totalBookings,
+            'pendingApprovals' => $this->pendingApprovals,
+            'popularCourts' => $this->popularCourts,
+            'peakHours' => $this->peakHours,
+            'recentBookings' => Booking::latest()->take(5)->get(), // include recent bookings
+        ])->layout('layouts.app'); // optional Jetstream layout
     }
 }

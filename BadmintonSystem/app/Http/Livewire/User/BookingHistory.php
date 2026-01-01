@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Livewire\User;
+namespace App\Http\Livewire\User;
 
 use Livewire\Component;
+use Livewire\WithPagination;
 use App\Models\Booking;
 use Illuminate\Support\Facades\Auth;
-use Livewire\WithPagination;
 
 class BookingHistory extends Component
 {
@@ -13,9 +13,8 @@ class BookingHistory extends Component
 
     public function render()
     {
-        // Fetch bookings for the logged-in user, ordered by most recent
-        $bookings = Booking::where('user_id', Auth::id())
-            ->with('court') // Eager load court data to avoid N+1 problem
+        $bookings = Booking::with('court')
+            ->where('user_id', Auth::id())
             ->orderBy('booking_date', 'desc')
             ->orderBy('start_time', 'desc')
             ->paginate(10);

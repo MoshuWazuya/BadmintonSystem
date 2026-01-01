@@ -1,20 +1,15 @@
 <?php
 
-namespace App\Livewire\User;
+namespace App\Http\Livewire\User;
 
 use Livewire\Component;
 use App\Models\Court;
 use App\Models\Booking;
-use App\Models\CourtSchedule;
 use Illuminate\Support\Facades\Auth;
 
 class BookingForm extends Component
 {
-    public $courts;
-    public $court_id;
-    public $booking_date;
-    public $start_time;
-    public $end_time;
+    public $courts, $court_id, $booking_date, $start_time, $end_time;
     public $availabilityMessage = '';
     public $isAvailable = false;
 
@@ -27,7 +22,6 @@ class BookingForm extends Component
 
     public function mount()
     {
-        // Fetch all active courts for the dropdown
         $this->courts = Court::where('status', 'active')->get();
     }
 
@@ -35,7 +29,6 @@ class BookingForm extends Component
     {
         $this->validate();
 
-        // Check if court is in maintenance
         $court = Court::find($this->court_id);
         if ($court->status === 'maintenance') {
             $this->availabilityMessage = 'This court is currently under maintenance.';
@@ -43,10 +36,9 @@ class BookingForm extends Component
             return;
         }
 
-        // Check for overlapping bookings in the 'bookings' table
         $exists = Booking::where('court_id', $this->court_id)
             ->where('booking_date', $this->booking_date)
-            ->where('status', '!=', 'rejected') // Ignore rejected bookings
+            ->where('status', '!=', 'rejected')
             ->where(function ($query) {
                 $query->whereBetween('start_time', [$this->start_time, $this->end_time])
                       ->orWhereBetween('end_time', [$this->start_time, $this->end_time])
@@ -68,21 +60,18 @@ class BookingForm extends Component
 
     public function store()
     {
-        if (!$this->isAvailable) {
-            return;
-        }
+        if (!$this->isAvailable) return;
 
-        // Create the booking record
         Booking::create([
             'user_id' => Auth::id(),
             'court_id' => $this->court_id,
             'booking_date' => $this->booking_date,
             'start_time' => $this->start_time,
             'end_time' => $this->end_time,
-            'status' => 'pending' // Default status as per requirements
+            'status' => 'pending',
         ]);
 
-        session()->flash('message', 'Booking request submitted successfully! Pending approval.');
+        session()->flash('message', 'Booking request submitted successfully!');
         return redirect()->route('user.bookings');
     }
 
