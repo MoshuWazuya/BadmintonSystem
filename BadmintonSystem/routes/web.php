@@ -1,41 +1,48 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Models\User;
 
-// Admin Livewire components
-use App\Http\Livewire\Admin\Dashboard;
-use App\Http\Livewire\Admin\ManageBookings;
-
-// User Livewire components
+// Import Livewire Components
+use App\Http\Livewire\Admin\Dashboard as AdminDashboard;
+use App\Livewire\Admin\ManageBookings;
 use App\Http\Livewire\User\BookingForm;
 use App\Http\Livewire\User\BookingHistory;
 use App\Http\Livewire\User\UserProfile;
 
-// Home route
 Route::get('/', function () {
     return view('welcome');
 });
 
-// Default Jetstream dashboard
+// 1. DASHBOARD "TRAFFIC COP"
 Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
     'verified',
 ])->group(function () {
     Route::get('/dashboard', function () {
+        if (auth()->user()->role === 'admin') {
+            return redirect()->route('admin.dashboard');
+        }
         return view('dashboard');
     })->name('dashboard');
 });
 
-// User Routes
+// 2. USER ROUTES
 Route::middleware(['auth:sanctum', 'verified'])->group(function () {
-    Route::get('/bookcourt', BookingForm::class)->name('user.book');
-    Route::get('/mybookings', BookingHistory::class)->name('user.bookings');
+    Route::get('/book-court', BookingForm::class)->name('user.book');
+    Route::get('/my-bookings', BookingHistory::class)->name('user.bookings');
     Route::get('/profile', UserProfile::class)->name('user.profile');
 });
 
-// Admin Routes
-Route::middleware(['auth:sanctum', 'verified', 'isAdmin'])->group(function () {
-    Route::get('/admin/dashboard', Dashboard::class)->name('admin.dashboard');
-    Route::get('/admin/bookings', ManageBookings::class)->name('admin.bookings');
-});
+// 3. ADMIN ROUTES (Simplified)
+Route::middleware(['auth:sanctum', 'verified'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+        
+        // We removed the complex "Wall" closure here to fix the crash
+        Route::get('/dashboard', AdminDashboard::class)->name('dashboard');
+        Route::get('/bookings', ManageBookings::class)->name('bookings');
+
+    });

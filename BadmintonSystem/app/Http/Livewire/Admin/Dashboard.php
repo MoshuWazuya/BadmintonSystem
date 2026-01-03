@@ -16,6 +16,11 @@ class Dashboard extends Component
 
     public function mount()
     {
+        // SECURITY CHECK: Kick out anyone who isn't an admin
+        if (auth()->user()->role !== 'admin') {
+            abort(403, 'Unauthorized access.');
+        }
+
         $this->totalBookings = Booking::count();
         $this->pendingApprovals = Booking::where('status', 'pending')->count();
 
@@ -42,6 +47,6 @@ class Dashboard extends Component
             'popularCourts' => $this->popularCourts,
             'peakHours' => $this->peakHours,
             'recentBookings' => Booking::latest()->take(5)->get(), // include recent bookings
-        ])->layout('layouts.app'); // optional Jetstream layout
+        ]);
     }
 }
