@@ -5,21 +5,21 @@ use Illuminate\Support\Facades\Route;
 // Admin Livewire components 
 use App\Http\Livewire\Admin\Dashboard as AdminDashboard;
 use App\Http\Livewire\Admin\ManageBookings;
+use App\Http\Livewire\Admin\QRCheckIn;
 
 // User Livewire components 
 use App\Http\Livewire\User\Dashboard as UserDashboard;
 use App\Http\Livewire\User\BookingForm;
 use App\Http\Livewire\User\BookingHistory;
 use App\Http\Livewire\User\UserProfile;
+use App\Http\Livewire\User\HomePage;
 
 /*
 |--------------------------------------------------------------------------
 | Public Routes
 |--------------------------------------------------------------------------
 */
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', HomePage::class)->name('home');;
 
 /*
 |--------------------------------------------------------------------------
@@ -72,4 +72,7 @@ Route::middleware([
 
     Route::get('/admin/bookings', ManageBookings::class)
         ->name('admin.bookings');
+
+    Route::get('/admin/check-in', QRCheckIn::class)
+        ->name('admin.checkin');
 });
