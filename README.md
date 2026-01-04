@@ -1,41 +1,25 @@
-Badminton Court Booking System Using Laravel MVC Framework
+# Badminton Booking System 🏸
 
-Group Members
-Name	                                      Matric No
-MOHAMAD WAZIR BIN NORDIN                     2215353
-MUHAMMAD SALAHUDDIN BIN ABDUL JALIL          2312257
-MUHAMMAD IZWAN BIN MOHD ABDUL RAHMAN         2316037
-MUHAMMAD MUAZ BIN RUSZANI                    2317805
-MUHAMMAD ZAFRI ISKANDAR BIN MOHD ZUHAIRI     2319855
+A web-based application built with **Laravel Jetstream** and **Livewire** to manage badminton court bookings.
 
+📌 Group Members
+MOHAMAD WAZIR BIN NORDIN 2215353
+MUHAMMAD SALAHUDDIN BIN ABDUL JALIL 2312257
+MUHAMMAD IZWAN BIN MOHD ABDUL RAHMAN2316037
+MUHAMMAD MUAZ BIN RUSZANI 2317805
+MUHAMMAD ZAFRI ISKANDAR BIN MOHD ZUHAIRI 2319855
 
-Introduction
+## 🚀 Features
+* **User Dashboard:** View active courts and book time slots.
+* **Admin Dashboard:** Approve/Reject booking requests and view stats.
+* **Booking History:** Users can track their pending and approved bookings.
+* **Role Management:** Secure login for Admins vs. Regular Users.
 
-Objectives
+## 🛠️ Tech Stack
+* **Framework:** Laravel 10
+* **Frontend:** Livewire v3 + Tailwind CSS
+* **Database:** MySQL
 
-Features and Functionalities
-👤 User Features
-
-🛠️ Admin Features
-
-🧱 System Features
-
-
-🗂️ Entity Relationship Diagram (ERD)
-
-
-🔁 Sequence Diagram (User Booking Flow)
-
-
-
-🧠MVC Architecture Explanation
-
-
-
-
-
-
-
-
-
-
+## 📦 How to Run
+1. Clone the repo:
+  
