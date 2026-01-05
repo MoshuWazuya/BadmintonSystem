@@ -1,64 +1,51 @@
-<div>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            Manage Bookings
-        </h2>
-    </x-slot>
+<div class="p-6 bg-white rounded shadow">
+    <h2 class="text-xl font-bold mb-4">Manage Bookings (Approve / Reject / Delete / QR Check-In)</h2>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            
-            @if (session()->has('message'))
-                <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4">
-                    {{ session('message') }}
-                </div>
-            @endif
+    <div class="overflow-x-auto">
+        <table class="w-full table-auto border-collapse border border-gray-300">
+            <thead class="bg-gray-100">
+                <tr>
+                    <th class="border p-2">Booking ID</th>
+                    <th class="border p-2">User</th>
+                    <th class="border p-2">Court</th>
+                    <th class="border p-2">Date & Time</th>
+                    <th class="border p-2">Status</th>
+                    <th class="border p-2">Checked In</th>
+                    <th class="border p-2">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($bookings as $booking)
+                    <tr>
+                        <td class="border p-2">{{ $booking->booking_id }}</td>
+                        <td class="border p-2">{{ $booking->user->name }}</td>
+                        <td class="border p-2">{{ $booking->court->court_name ?? 'Unknown' }}</td>
+                        <td class="border p-2">
+                            {{ \Carbon\Carbon::parse($booking->booking_date)->format('d M Y') }}<br>
+                            {{ $booking->start_time }} - {{ $booking->end_time }}
+                        </td>
+                        <td class="border p-2">{{ ucfirst($booking->status) }}</td>
+                        <td class="border p-2">{{ $booking->checked_in ? 'Yes' : 'No' }}</td>
+                        <td class="border p-2 space-x-2">
+                            @if($booking->status === 'pending')
+                                <button wire:click="approveBooking({{ $booking->booking_id }})" class="bg-green-500 text-white px-2 py-1 rounded">Approve</button>
+                                <button wire:click="rejectBooking({{ $booking->booking_id }})" class="bg-red-500 text-white px-2 py-1 rounded">Reject</button>
+                            @endif
 
-            <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">User</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Court</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date/Time</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        @foreach($bookings as $booking)
-                            <tr>
-                                <td class="px-6 py-4">{{ $booking->user->name }}</td>
-                                <td class="px-6 py-4">{{ $booking->court->court_name ?? 'Court #'.$booking->court_id }}</td>
-                                <td class="px-6 py-4">
-                                    {{ $booking->booking_date }}<br>
-                                    <span class="text-xs text-gray-500">{{ $booking->start_time }} - {{ $booking->end_time }}</span>
-                                </td>
-                                <td class="px-6 py-4">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                        {{ $booking->status === 'pending' ? 'bg-yellow-100 text-yellow-800' : '' }}
-                                        {{ $booking->status === 'approved' ? 'bg-green-100 text-green-800' : '' }}
-                                        {{ $booking->status === 'rejected' ? 'bg-red-100 text-red-800' : '' }}">
-                                        {{ ucfirst($booking->status) }}
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 text-right text-sm font-medium">
-                                    @if($booking->status === 'pending')
-                                        <button wire:click="approve({{ $booking->booking_id }})" class="text-white bg-green-500 hover:bg-green-700 px-3 py-1 rounded mr-2">
-                                            Approve
-                                        </button>
-                                        <button wire:click="reject({{ $booking->booking_id }})" class="text-white bg-red-500 hover:bg-red-700 px-3 py-1 rounded">
-                                            Reject
-                                        </button>
-                                    @else
-                                        <span class="text-gray-400">Completed</span>
-                                    @endif
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        </div>
+                            @if($booking->status !== 'pending' || $booking->status === 'approved' || $booking->status === 'rejected')
+                                <button wire:click="deleteBooking({{ $booking->booking_id }})" class="bg-gray-600 text-white px-2 py-1 rounded">Delete</button>
+                            @endif
+
+                            <livewire:admin.qr-check-in :bookingId="$booking->booking_id" key="{{ $booking->booking_id }}" />
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="7" class="text-center text-gray-500">No bookings found.</td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
 </div>
+

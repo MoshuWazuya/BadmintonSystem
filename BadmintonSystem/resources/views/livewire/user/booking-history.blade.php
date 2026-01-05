@@ -1,71 +1,82 @@
-<div class="py-12">
-    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-        <h2 class="text-2xl font-bold mb-6 text-gray-800">My Booking History</h2>
+<div class="p-6 bg-white rounded shadow">
 
-        @if (session()->has('message'))
-            <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4">
-                {{ session('message') }}
-            </div>
-        @endif
+    <h2 class="text-xl font-bold mb-4">Booking History</h2>
 
-        <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Booking ID</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Court</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date & Time</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">QR Code</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        @forelse($bookings as $booking)
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    #{{ $booking->booking_id }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-medium text-gray-900">{{ $booking->court->court_name }}</div>
-                                    <div class="text-sm text-gray-500">{{ $booking->court->location }}</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">{{ $booking->booking_date }}</div>
-                                    <div class="text-sm text-gray-500">
-                                        {{ \Carbon\Carbon::parse($booking->start_time)->format('h:i A') }} - 
-                                        {{ \Carbon\Carbon::parse($booking->end_time)->format('h:i A') }}
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                        {{ $booking->status === 'approved' ? 'bg-green-100 text-green-800' : '' }}
-                                        {{ $booking->status === 'pending' ? 'bg-yellow-100 text-yellow-800' : '' }}
-                                        {{ $booking->status === 'rejected' ? 'bg-red-100 text-red-800' : '' }}">
-                                        {{ ucfirst($booking->status) }}
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    @if($booking->status === 'approved')
-                                        <button class="text-indigo-600 hover:text-indigo-900">View QR</button>
-                                    @else
-                                        <span class="text-gray-400">-</span>
-                                    @endif
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="5" class="px-6 py-4 text-center text-gray-500">
-                                    No bookings found. <a href="{{ route('user.book') }}" class="text-indigo-600 hover:underline">Book a court now!</a>
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-            <div class="p-4">
-                {{ $bookings->links() }}
-            </div>
-        </div>
+    <div class="overflow-x-auto">
+        <table class="w-full table-auto border-collapse border border-gray-300">
+            <thead>
+                <tr class="bg-gray-100">
+                    <th class="border p-2">Booking ID</th>
+                    <th class="border p-2">Court</th>
+                    <th class="border p-2">Date & Time</th>
+                    <th class="border p-2">Status</th>
+                    <th class="border p-2">Checked In</th>
+                    <th class="border p-2">Actions</th>
+                    <th class="border p-2">QR Code</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($bookings as $booking)
+                    <tr>
+                        <td class="border p-2">{{ $booking->booking_id }}</td>
+
+                        <td class="border p-2">
+                            {{ $booking->court->court_name ?? 'N/A' }}
+                        </td>
+
+                        <td class="border p-2">
+                            {{ \Carbon\Carbon::parse($booking->booking_date)->format('d M Y') }}<br>
+                            {{ $booking->start_time }} - {{ $booking->end_time }}
+                        </td>
+
+                        <td class="border p-2">
+                            {{ ucfirst($booking->status) }}
+                        </td>
+
+                        <td class="border p-2">
+                            {{ $booking->checked_in ? 'Yes' : 'No' }}
+                        </td>
+
+                        <td class="border p-2">
+                            @if(!$booking->checked_in)
+                                <button
+                                    wire:click="deleteBooking({{ $booking->booking_id }})"
+                                    class="bg-red-500 text-white px-2 py-1 rounded">
+                                    Delete
+                                </button>
+                            @else
+                                <span class="text-gray-400">Locked</span>
+                            @endif
+                        </td>
+
+                        <td class="border p-2 text-center">
+                            <button
+                                wire:click="toggleQr({{ $booking->booking_id }})"
+                                class="bg-blue-500 text-white px-2 py-1 rounded">
+                                View QR
+                            </button>
+
+                            @if($showQrId === $booking->booking_id)
+                                <div class="mt-2">
+                                    <img
+                                        src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ $booking->qr_code }}"
+                                        class="mx-auto"
+                                        alt="QR Code">
+                                </div>
+                            @endif
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="7" class="text-center text-gray-500 py-4">
+                            No bookings found.
+                        </td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
+
 </div>
+
+

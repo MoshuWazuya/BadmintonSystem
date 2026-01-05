@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Livewire\User;
+namespace App\Livewire\User;
 
 use Livewire\Component;
 use App\Models\Court;
@@ -9,7 +9,7 @@ class HomePage extends Component
 {
     public function render(): mixed
     {
-        return view('livewire.home-page', [
+        return view('livewire.user.home-page', [
             'courts' => Court::all()
         ]);
     }

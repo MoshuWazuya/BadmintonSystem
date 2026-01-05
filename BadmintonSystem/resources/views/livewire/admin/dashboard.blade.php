@@ -1,47 +1,86 @@
-<div>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">Admin Dashboard</h2>
-    </x-slot>
+<div class="py-6">
+    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
-    <div class="py-6">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 grid grid-cols-2 gap-4">
-
-            <div class="bg-white p-4 rounded shadow">
-                <h3 class="text-gray-500 text-sm">Total Users</h3>
+        {{-- Stats --}}
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+            <div class="bg-white p-4 rounded shadow text-center">
+                <h3 class="text-gray-600">Total Users</h3>
                 <p class="text-2xl font-bold">{{ $totalUsers }}</p>
             </div>
-
-            <div class="bg-white p-4 rounded shadow">
-                <h3 class="text-gray-500 text-sm">Total Bookings</h3>
+            <div class="bg-white p-4 rounded shadow text-center">
+                <h3 class="text-gray-600">Total Bookings</h3>
                 <p class="text-2xl font-bold">{{ $totalBookings }}</p>
             </div>
-
-            <div class="bg-white p-4 rounded shadow">
-                <h3 class="text-gray-500 text-sm">Pending Approvals</h3>
-                <p class="text-2xl font-bold text-indigo-600">{{ $pendingApprovals }}</p>
+            <div class="bg-white p-4 rounded shadow text-center">
+                <h3 class="text-gray-600">Pending Approvals</h3>
+                <p class="text-2xl font-bold">{{ $pendingApprovals }}</p>
             </div>
-        </div>
-
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 mt-6">
-            <div class="bg-white p-6 rounded shadow">
-                <h3 class="text-lg font-semibold mb-4 border-b pb-2">Recent Bookings</h3>
-                <ul class="space-y-3">
-                    @forelse($recentBookings as $booking)
-                        <li class="flex justify-between items-center bg-gray-50 p-3 rounded">
-                            <div>
-                                <span class="font-bold">{{ $booking->user->name }}</span> 
-                                <span class="text-gray-600">booked</span> 
-                                <span class="font-bold text-indigo-600">
-                                    {{ $booking->court->court_name ?? 'Court #'.$booking->court_id }}
-                                </span>
-                            </div>
-                            <span class="text-sm text-gray-500">{{ $booking->booking_date }}</span>
-                        </li>
-                    @empty
-                        <li class="text-gray-500 italic">No bookings found.</li>
-                    @endforelse
+            <div class="bg-white p-4 rounded shadow text-center">
+                <h3 class="text-gray-600">Popular Courts</h3>
+                <ul class="text-left">
+                    @foreach($popularCourts as $court)
+                        <li>{{ $court->court_name }} ({{ $court->bookings_count }})</li>
+                    @endforeach
                 </ul>
             </div>
         </div>
+
+        {{-- Manage Bookings --}}
+        <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg p-4 mb-6">
+            <h3 class="text-lg font-semibold mb-4">Manage Bookings</h3>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th>Booking ID</th>
+                            <th>User</th>
+                            <th>Court</th>
+                            <th>Date & Time</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($recentBookings as $booking)
+                            <tr>
+                                <td>{{ $booking->booking_id }}</td>
+                                <td>{{ $booking->user->name }}</td>
+                                <td>{{ $booking->court->court_name ?? $booking->court_id }}</td>
+                                <td>{{ \Carbon\Carbon::parse($booking->booking_date)->format('d M Y') }}<br>{{ $booking->start_time }} - {{ $booking->end_time }}</td>
+                                <td>{{ ucfirst($booking->status) }}</td>
+                                <td>
+                                    @if($booking->status === 'pending')
+                                        <button wire:click="approveBooking({{ $booking->booking_id }})" class="bg-green-500 text-white px-2 py-1 rounded">Approve</button>
+                                        <button wire:click="rejectBooking({{ $booking->booking_id }})" class="bg-red-500 text-white px-2 py-1 rounded">Reject</button>
+                                    @else
+                                        <span>No actions</span>
+                                    @endif
+                                </td>
+                            </tr>
+                        @empty
+                            <tr><td colspan="6" class="text-center text-gray-500">No bookings found.</td></tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        {{-- Court Management --}}
+        @livewire('admin.court-management')
     </div>
 </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
